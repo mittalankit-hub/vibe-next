@@ -5,6 +5,7 @@ FROM node:21-slim
 RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY compile_page.sh /compile_page.sh
+RUN npm install -g next
 RUN chmod +x /compile_page.sh
 
 # Install dependencies and customize sandbox
@@ -17,3 +18,5 @@ RUN npx --yes shadcn@2.6.3 add --all --yes
 
 # Move the Nextjs app to the home directory and remove the nextjs-app directory
 RUN mv /home/user/nextjs-app/* /home/user/ && rm -rf /home/user/nextjs-app
+
+# mv /Users/Ankitmittal/VSProjects/test/nextjs-app/* /Users/Ankitmittal/VSProjects/test/ && rm -rf /Users/Ankitmittal/VSProjects/test/nextjs-app
