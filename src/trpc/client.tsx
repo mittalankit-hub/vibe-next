@@ -26,10 +26,23 @@ function getUrl() {
   const base = (() => {
     if (typeof window !== 'undefined') return '';
     //if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-    return process.env.NEXT_PUBLIC_APP_URL
+    return process.env.NEXT_PUBLIC_API_URL
   })();
-  return `${base}/api/trpc`;
+
+  const fullUrl = `${base}/api/trpc`;
+
+  return fullUrl;
+
 }
+
+// function getUrl() {
+//   // Always use the full URL from environment variable
+//   const base = process.env.NEXT_PUBLIC_API_URL || '';
+//   const fullUrl = `${base}/api/trpc`;
+//   console.log('🔍 tRPC URL:', fullUrl);
+//   return fullUrl;
+// }
+
 export function TRPCReactProvider(
   props: Readonly<{
     children: React.ReactNode;
