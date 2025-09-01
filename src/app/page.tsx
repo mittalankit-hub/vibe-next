@@ -1,26 +1,39 @@
-import { getQueryClient, trpc } from "@/trpc/server"
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
-import { ErrorBoundary } from 'react-error-boundary'
-import { Suspense } from "react"
-import { Client } from "./client"
+"use client"
+
+import { useMutation, useQueries, useQuery } from "@tanstack/react-query"
+
+import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useTRPC } from "@/trpc/client"
+import { toast } from "sonner"
+import { json } from "node:stream/consumers"
 
 
 
-const Page = async ()=>{
+const Page =  ()=>{
 
-  const queryClient = getQueryClient()
-  await queryClient.prefetchQuery(trpc.hello.queryOptions({text:"Ankit"}))
+  const [value,setValue] = useState("")
+  const trpc = useTRPC()
+  const {data: messages} = useQuery(trpc.messages.getMany.queryOptions())
+  const createdMessage = useMutation(trpc.messages.create.mutationOptions({
+    onSuccess: () =>{
+      toast.success("Message Created")
+    },
+    onError: () =>{
+      console.log("error while creating a message")
+    }
+  }))
+
 
   return(
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      
-        <Suspense fallback={<div>Loading ...</div>}>
-          <ErrorBoundary fallback={<div>Error...</div>} >
-          <Client/>
-          </ErrorBoundary>
-        </Suspense>
-      
-    </HydrationBoundary>
+    <>
+     <Input value={value} onChange={(e)=>setValue(e.target.value)}/>
+     <Button disabled={createdMessage.isPending} onClick={()=> createdMessage.mutate({value:value})}>
+          Invoke Background Job
+     </Button>
+     {JSON.stringify(messages,null,2)}
+     </>
   )
 }
 
