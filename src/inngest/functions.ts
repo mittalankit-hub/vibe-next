@@ -1,11 +1,16 @@
 import {Sandbox} from "@e2b/code-interpreter"
 import { inngest } from "./client";
-import { openai, createAgent, createTool, createNetwork } from "@inngest/agent-kit";
+import { openai, createAgent, createTool, createNetwork, type Tool } from "@inngest/agent-kit";
 import { getSandbox, localAssistantTextMessageContent } from "./utils";
 import { z } from "zod";
 import { PROMPT as newPrompt} from "@/prompt";
 import prisma from "@/lib/prisma";
 
+
+interface AgentState {
+    summary: string;
+    files: {[path:string]:string}
+}
 export const codeAgent = inngest.createFunction(
   { id: "code-agent" },
   { event: "code-agent/run" },
@@ -15,7 +20,7 @@ export const codeAgent = inngest.createFunction(
         const sandbox = await Sandbox.create("vibe-nextjs-test-4444")
         return sandbox.sandboxId
     })
-    const codeAgent = createAgent({
+    const codeAgent = createAgent<AgentState>({
       name: "code-agent",
       description:"An expert coding agent",
       system: newPrompt,
@@ -62,7 +67,7 @@ export const codeAgent = inngest.createFunction(
                     content:z.string(),
                 }))
             }),
-            handler: async ({ files }, { step,network }) => {
+            handler: async ({ files }, { step,network }: Tool.Options<AgentState>) => {
                 const newFiles = await step?.run("create-or-update-files", async () => {
                     try{
                         const updatedFiles = network.state.data.files || {}
@@ -120,7 +125,7 @@ export const codeAgent = inngest.createFunction(
     });
 
 
-    const network = createNetwork({
+    const network = createNetwork<AgentState>({
         name: "coding-agent-network",
         agents: [codeAgent],
         maxIter: 15,
@@ -142,8 +147,18 @@ export const codeAgent = inngest.createFunction(
         return `https://${host}`
     })
 
-
+    const isError = !result.state.data.summary || Object.keys(result.state.data.files || {}).length === 0
     await step.run("save-result",async()=>{
+        if(isError)
+        {
+            return await prisma.message.create({
+                data:{
+                    content: "Something went wrong. Please try again",
+                    role:"ASSISTANT",
+                    type:"ERROR",
+                }
+            })
+        }
         return await prisma.message.create({
             data:{
                 content: result.state.data.summary,
