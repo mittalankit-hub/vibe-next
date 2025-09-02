@@ -20,7 +20,8 @@ export const messageRouter = createTRPCRouter({
 
     create: baseProcedure
     .input(z.object({
-        value: z.string().min(1,{message:"Message is Required"}),
+        value: z.string().min(1,{message:"Message is Required"}).max(10000,{message:"Message is too long"}),
+        projectId: z.string().min(1,{message:"Project ID is required"})
     }),
     )
     .mutation(async ({input})=>{
@@ -28,7 +29,8 @@ export const messageRouter = createTRPCRouter({
             data:{
                 content: input.value,
                 role: "USER",
-                type: "RESULT"
+                type: "RESULT",
+                projectId: input.projectId
             }
         })
         await inngest.send({
