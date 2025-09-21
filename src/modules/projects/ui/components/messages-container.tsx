@@ -23,12 +23,13 @@ const MessageContainer = ({projectId,activeFragment,setActiveFragment}:Props)=>{
         //TODO: Temporary Live message update
         refetchInterval:5000}))
 
-    useEffect(()=>{
-        const lastAssistantMessageWithFragment = messages.findLast((message)=>message.role==="ASSISTANT" && !!message.fragment)
-        if(lastAssistantMessageWithFragment){
-            setActiveFragment(lastAssistantMessageWithFragment.fragment)
-        }
-    },[messages,setActiveFragment])
+    // TODO: This is causing problems
+    // useEffect(()=>{
+    //     const lastAssistantMessageWithFragment = messages.findLast((message)=>message.role==="ASSISTANT" && !!message.fragment)
+    //     if(lastAssistantMessageWithFragment){
+    //         setActiveFragment(lastAssistantMessageWithFragment.fragment)
+    //     }
+    // },[messages,setActiveFragment])
 
 
     useEffect(()=>{
