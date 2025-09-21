@@ -37,7 +37,7 @@ const FragmentCard = ({fragment,isActiveFragment,onFragmentclick}:FragmentCardPr
                 </span>
                 <span className="text-sm">Preview</span>
             </div>
-            <div className="flex items-center justify-center mt-0.5">
+            <div className="flex items-center justify-center">
                 <ChevronRightIcon className="size-4"/>
             </div>
         </button>

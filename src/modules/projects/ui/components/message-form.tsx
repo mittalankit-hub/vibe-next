@@ -28,9 +28,9 @@ export const MessageForm = ({projectId}:MessageFormProps)=>{
     const trpc = useTRPC()
     const form = useForm<z.infer<typeof formSchema>>({resolver: zodResolver(formSchema),defaultValues:{value:""}});
     const createMessage = useMutation(trpc.messages.create.mutationOptions({
-        onSuccess:(data)=>{
+        onSuccess:()=>{
             form.reset()
-            queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({projectId:data.projectId}))
+            queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({projectId}))
         //TODO: Invalidate usage status
         
         },
